@@ -6,26 +6,26 @@ export default async function AdminHome() {
 
   return (
     <AdminGuard>
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-6 py-12">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-6 py-12 text-foreground">
         <header className="flex flex-col gap-2">
-          <p className="text-sm text-slate-600">Panel administrativo</p>
-          <h1 className="text-3xl font-semibold text-slate-900">
+          <p className="text-sm text-muted-foreground">Panel administrativo</p>
+          <h1 className="text-3xl font-semibold text-foreground">
             Bienvenido, {user.email ?? "administrador"}
           </h1>
-          <p className="text-slate-700">
+          <p className="text-muted-foreground">
             Gestiona tenants, landings, servicios y reservas desde este panel.
           </p>
         </header>
         <section className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Tenants</h2>
-            <p className="text-sm text-slate-700">
+          <div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-foreground">Tenants</h2>
+            <p className="text-sm text-muted-foreground">
               Crea, edita y configura colores, tipografia y dominios.
             </p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-slate-900">Reservas</h2>
-            <p className="text-sm text-slate-700">
+          <div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-foreground">Reservas</h2>
+            <p className="text-sm text-muted-foreground">
               Revisa reservas recientes y asigna staff o salas segun disponibilidad.
             </p>
           </div>

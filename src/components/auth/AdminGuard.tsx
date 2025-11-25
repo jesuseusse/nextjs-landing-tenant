@@ -32,7 +32,7 @@ export function AdminGuard({ children }: { children: ReactNode }) {
 
   if (!ready) {
     return (
-      <div className="flex h-24 items-center justify-center text-slate-700">
+      <div className="flex h-24 items-center justify-center text-muted-foreground">
         Verificando sesion...
       </div>
     );
