@@ -2,7 +2,7 @@
 import { getApp, getApps, initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
-function initAdmin() {
+export function getAdminApp() {
   if (getApps().length) return getApp();
 
   const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
@@ -37,7 +37,7 @@ function initAdmin() {
 }
 
 export async function verifyIdToken(idToken: string) {
-  const app = initAdmin();
+  const app = getAdminApp();
   const auth = getAuth(app);
   return auth.verifyIdToken(idToken);
 }

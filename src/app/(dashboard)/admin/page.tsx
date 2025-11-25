@@ -22,6 +22,12 @@ export default async function AdminHome() {
             <p className="text-sm text-muted-foreground">
               Crea, edita y configura colores, tipografia y dominios.
             </p>
+            <a
+              href="/admin/theme"
+              className="mt-4 inline-flex h-11 items-center justify-center rounded bg-primary px-4 text-primary-foreground transition hover:opacity-90"
+            >
+              Personalizar landing
+            </a>
           </div>
           <div className="rounded-2xl border border-border bg-background p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-foreground">Reservas</h2>
