@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.11",
+    "firebase": "^11.0.2",
+    "firebase-admin": "^12.6.0",
     "next": "16.0.4",
     "react": "19.2.0",
     "react-dom": "19.2.0"
