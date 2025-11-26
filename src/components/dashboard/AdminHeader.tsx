@@ -41,7 +41,7 @@ export function AdminHeader({ onToggleMenu }: AdminHeaderProps) {
 					<button
 						type='button'
 						onClick={onToggleMenu}
-						className='inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground transition hover:border-foreground/60 hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary sm:hidden'
+						className='inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground transition hover:border-foreground/60 hover:bg-muted focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-primary sm:hidden'
 						aria-label='Abrir menu lateral'
 					>
 						<svg
@@ -73,7 +73,7 @@ export function AdminHeader({ onToggleMenu }: AdminHeaderProps) {
 						type='button'
 						onClick={handleLogout}
 						disabled={deleteSession.isPending}
-						className='inline-flex h-10 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-medium text-foreground transition hover:border-foreground/60 hover:bg-muted focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70'
+						className='inline-flex h-10 items-center justify-center rounded-full border border-border bg-background px-4 text-sm font-medium text-foreground transition hover:border-foreground/60 hover:bg-muted focus-visible:outline   focus-visible:outline-offset-2 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-70'
 					>
 						{deleteSession.isPending ? 'Saliendo...' : 'Cerrar sesion'}
 					</button>
