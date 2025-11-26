@@ -19,7 +19,7 @@ async function fetchTenant() {
   return (await res.json()).tenant as TenantPayload | null;
 }
 
-async function saveTenant(payload: TenantPayload) {
+async function saveTenant(payload: TenantPayload & { prevTenantId?: string | null }) {
   const method = "PUT";
   const res = await fetch("/api/tenant", {
     method,

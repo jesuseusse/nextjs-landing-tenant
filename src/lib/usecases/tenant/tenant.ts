@@ -12,6 +12,7 @@ type TenantInput = {
   tenantId: string;
   displayName: string;
   theme: ThemeConfig;
+  prevTenantId?: string | null;
 };
 
 function ensureSessionUser(
@@ -67,7 +68,18 @@ export async function upsertTenant(input: TenantInput) {
     createdAt: now,
   };
 
-  return saveTenant(input.tenantId, payload);
+  const saved = await saveTenant(input.tenantId, payload);
+
+  // If tenantId changed, remove old doc
+  const previousId = input.prevTenantId?.trim();
+  if (previousId && previousId !== input.tenantId) {
+    const existing = await fetchTenantById(previousId);
+    if (existing && existing.userId === user.uid) {
+      await deleteTenant(previousId);
+    }
+  }
+
+  return saved;
 }
 
 export async function removeTenant(tenantId: string) {

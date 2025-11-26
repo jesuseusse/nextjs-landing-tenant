@@ -21,11 +21,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: Request) {
 	try {
-		const { tenantId, displayName, theme } = await request.json();
+		const { tenantId, displayName, theme, prevTenantId } = await request.json();
 		if (!tenantId || !displayName || !theme) {
 			return errorResponse('tenantId, displayName y theme son requeridos');
 		}
-		const tenant = await upsertTenant({ tenantId, displayName, theme });
+		const tenant = await upsertTenant({ tenantId, displayName, theme, prevTenantId });
 		return NextResponse.json({ ok: true, tenant });
 	} catch (error) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,11 +37,11 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
 	try {
-		const { tenantId, displayName, theme } = await request.json();
+		const { tenantId, displayName, theme, prevTenantId } = await request.json();
 		if (!tenantId || !displayName || !theme) {
 			return errorResponse('tenantId, displayName y theme son requeridos');
 		}
-		const tenant = await upsertTenant({ tenantId, displayName, theme });
+		const tenant = await upsertTenant({ tenantId, displayName, theme, prevTenantId });
 		return NextResponse.json({ ok: true, tenant });
 	} catch (error) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any

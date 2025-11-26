@@ -67,6 +67,7 @@ export default function ThemePage() {
 		const tenantId = formatTenant(values.tenantId);
 		form.setValue('tenantId', tenantId);
 		await saveTenant.mutateAsync({
+			prevTenantId: tenantQuery.data?.tenantId ?? null,
 			tenantId,
 			displayName: values.displayName,
 			theme: values.theme
