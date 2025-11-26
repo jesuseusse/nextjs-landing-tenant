@@ -1,19 +1,16 @@
 // Server-side session helpers for admin protection.
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { verifyIdToken } from '@/lib/adapters/firebase/admin';
-
-const SESSION_COOKIE = 'consultapp_session';
+import { verifySessionCookie } from '@/lib/adapters/firebase/admin';
+import { SESSION_COOKIE } from '@/lib/constants/cookies';
 
 export async function getSessionUser() {
 	const token = (await cookies()).get(SESSION_COOKIE)?.value;
 	if (!token) return null;
 	try {
-		const decoded = await verifyIdToken(token);
+		const decoded = await verifySessionCookie(token);
 		return {
-			uid: decoded.uid,
-			email: decoded.email ?? null,
-			roles: decoded.roles ?? decoded.role ?? null
+			...decoded
 		};
 	} catch {
 		return null;

@@ -1,60 +1,59 @@
 // React Query hooks for tenant theme management.
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { type ThemeConfig } from '@/lib/types/theme';
 
 type ThemePayload = {
-  displayName: string;
-  theme: {
-    background: string;
-    foreground: string;
-    primary: string;
-    primaryForeground: string;
-    muted: string;
-    mutedForeground: string;
-    border: string;
-    radius: number;
-    font?: string;
-  };
+	tenantId: string;
+	userUid: string;
+	displayName: string;
+	theme: ThemeConfig;
 };
 
-async function fetchTheme(tenantId: string) {
-  const res = await fetch(`/api/admin/tenant-theme?tenantId=${encodeURIComponent(tenantId)}`, {
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error("No se pudo obtener el tema");
-  const data = await res.json();
-  return data.theme as ThemePayload | null;
+type ThemeUpdatePayload = Omit<ThemePayload, 'userUid'>;
+
+async function fetchTheme() {
+	const res = await fetch(`/api/admin/tenant-theme`, {
+		credentials: 'include'
+	});
+	if (!res.ok) throw new Error('No se pudo obtener el tema');
+	const data = await res.json();
+	return data.theme as ThemePayload | null;
 }
 
-async function updateTheme(tenantId: string, payload: ThemePayload) {
-  const res = await fetch("/api/admin/tenant-theme", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ tenantId, ...payload }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error ?? "No se pudo guardar el tema");
-  }
-  return (await res.json()).theme as ThemePayload;
+async function updateTheme(userUid: string, payload: ThemeUpdatePayload) {
+	const res = await fetch('/api/admin/tenant-theme', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include',
+		body: JSON.stringify({ userUid, ...payload })
+	});
+	if (!res.ok) {
+		const data = await res.json().catch(() => ({}));
+		throw new Error(data.error ?? 'No se pudo guardar el tema');
+	}
+	return (await res.json()).theme as ThemePayload;
 }
 
-export function useTenantTheme(tenantId: string) {
-  return useQuery({
-    queryKey: ["tenant-theme", tenantId],
-    queryFn: () => fetchTheme(tenantId),
-    enabled: Boolean(tenantId),
-  });
+export function useTenantTheme(options?: {
+	onSuccess?: (data: ThemePayload | null) => void;
+	enabled?: boolean;
+}) {
+	return useQuery({
+		queryKey: ['tenant-theme'],
+		queryFn: fetchTheme,
+		...options
+	});
 }
 
-export function useUpdateTenantTheme(tenantId: string) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: ThemePayload) => updateTheme(tenantId, payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tenant-theme", tenantId] });
-    },
-  });
+export function useUpdateTenantTheme(userUid: string) {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: (payload: ThemeUpdatePayload) => updateTheme(userUid, payload),
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['tenant-theme'] });
+		}
+	});
 }

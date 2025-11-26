@@ -1,59 +1,97 @@
-import { fetchTenantTheme, saveTenantTheme, type TenantThemeDoc } from "@/lib/adapters/firestore/tenantTheme";
-import { getSessionUser } from "@/lib/usecases/auth/session";
+import {
+	fetchTenantTheme,
+	fetchTenantThemeByUserUid,
+	saveTenantTheme,
+	type TenantThemeDoc
+} from '@/lib/adapters/firestore/tenantTheme';
+import { getSessionUser } from '@/lib/usecases/auth/session';
+import { type ThemeConfig } from '@/lib/types/theme';
 
 type ThemeInput = {
-  displayName: string;
-  theme: {
-    background: string;
-    foreground: string;
-    primary: string;
-    primaryForeground: string;
-    muted: string;
-    mutedForeground: string;
-    border: string;
-    radius: number;
-    font?: string;
-  };
+	tenantId: string;
+	displayName: string;
+	theme: ThemeConfig;
 };
 
-function ensureAdmin(user: Awaited<ReturnType<typeof getSessionUser>>) {
-  const roles = (user?.roles as string[] | undefined) ?? [];
-  if (!user || (!roles.includes("admin") && roles !== "admin")) {
-    throw Object.assign(new Error("No autorizado"), { status: 403 });
-  }
+function ensureSessionUser(
+	user: Awaited<ReturnType<typeof getSessionUser>>
+): asserts user is NonNullable<Awaited<ReturnType<typeof getSessionUser>>> & {
+	uid: string;
+} {
+	if (!user?.uid) {
+		throw Object.assign(new Error('No autorizado'), { status: 401 });
+	}
+}
+
+async function assertTenantAvailable(tenantId: string, userUid: string) {
+	const existing = await fetchTenantTheme(tenantId);
+	if (existing && existing.userUid !== userUid) {
+		throw Object.assign(new Error('Nombre de usuario ya existe'), {
+			status: 409
+		});
+	}
 }
 
 export async function getTenantThemeServer(tenantId: string) {
-  const user = await getSessionUser();
-  ensureAdmin(user);
-  return fetchTenantTheme(tenantId);
+	const user = await getSessionUser();
+	ensureSessionUser(user);
+	const doc = await fetchTenantTheme(tenantId);
+	if (doc && doc.userUid !== user.uid) {
+		throw Object.assign(new Error('No puedes ver este landing'), {
+			status: 403
+		});
+	}
+	return doc;
 }
 
-export async function updateTenantThemeServer(tenantId: string, input: ThemeInput) {
-  const user = await getSessionUser();
-  ensureAdmin(user);
+export async function getTenantThemeByUserServer(userUid?: string) {
+	const user = await getSessionUser();
+	ensureSessionUser(user);
+	if (userUid && user.uid !== userUid) {
+		throw Object.assign(new Error('No puedes ver este landing'), {
+			status: 403
+		});
+	}
+	return fetchTenantThemeByUserUid(user.uid);
+}
 
-  if (!input.displayName?.trim()) {
-    throw Object.assign(new Error("displayName requerido"), { status: 400 });
-  }
+export async function updateTenantThemeServer(
+	userUid: string,
+	input: ThemeInput
+) {
+	const user = await getSessionUser();
+	ensureSessionUser(user);
+	if (user.uid !== userUid) {
+		throw Object.assign(new Error('No puedes editar este landing'), {
+			status: 403
+		});
+	}
 
-  const now = Date.now();
-  const payload: Omit<TenantThemeDoc, "tenantId"> = {
-    displayName: input.displayName.trim(),
-    theme: {
-      background: input.theme.background,
-      foreground: input.theme.foreground,
-      primary: input.theme.primary,
-      primaryForeground: input.theme.primaryForeground,
-      muted: input.theme.muted,
-      mutedForeground: input.theme.mutedForeground,
-      border: input.theme.border,
-      radius: input.theme.radius,
-      font: input.theme.font,
-    },
-    updatedAt: now,
-    updatedBy: user?.uid ?? "unknown",
-  };
+	if (!input.displayName?.trim()) {
+		throw Object.assign(new Error('displayName requerido'), { status: 400 });
+	}
 
-  return saveTenantTheme(tenantId, payload);
+	if (!input.tenantId?.trim()) {
+		throw Object.assign(new Error('tenantId requerido'), { status: 400 });
+	}
+
+	await assertTenantAvailable(input.tenantId, user.uid);
+
+	const now = Date.now();
+	const payload: Omit<TenantThemeDoc, 'tenantId'> = {
+		userUid: user.uid,
+		displayName: input.displayName.trim(),
+		theme: {
+			background: input.theme.background,
+			foreground: input.theme.foreground,
+			primary: input.theme.primary,
+			muted: input.theme.muted,
+			radius: input.theme.radius,
+			font: input.theme.font
+		},
+		updatedAt: now,
+		updatedBy: user?.uid ?? 'unknown'
+	};
+
+	return saveTenantTheme(input.tenantId, payload);
 }

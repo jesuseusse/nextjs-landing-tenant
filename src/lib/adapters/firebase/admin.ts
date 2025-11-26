@@ -1,43 +1,52 @@
 // Firebase Admin helper for verifying ID tokens on the server.
-import { getApp, getApps, initializeApp, applicationDefault, cert } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
+import { getApp, getApps, initializeApp, cert } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 export function getAdminApp() {
-  if (getApps().length) return getApp();
+	if (getApps().length) return getApp();
 
-  const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-  const serviceAccount = rawServiceAccount
-    ? (() => {
-        const parsed = JSON.parse(rawServiceAccount);
-        if (parsed.private_key) {
-          parsed.private_key = parsed.private_key.replace(/\\n/g, "\n");
-        }
-        return parsed;
-      })()
-    : undefined;
+	const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+	const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+	const projectId =
+		process.env.FIREBASE_PROJECT_ID ??
+		process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
 
-  const hasServiceAccount =
-    serviceAccount &&
-    serviceAccount.project_id &&
-    serviceAccount.client_email &&
-    serviceAccount.private_key;
+	const hasServiceAccount = privateKey && clientEmail && projectId;
 
-  const envProjectId = process.env.FIREBASE_PROJECT_ID;
+	if (!hasServiceAccount) {
+		throw new Error(
+			'Firebase Admin config missing. Set FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL y FIREBASE_PROJECT_ID.'
+		);
+	}
 
-  if (!hasServiceAccount && !envProjectId) {
-    throw new Error(
-      "Firebase Admin config missing. Set FIREBASE_SERVICE_ACCOUNT_KEY (JSON) or FIREBASE_PROJECT_ID for applicationDefault().",
-    );
-  }
-
-  return initializeApp({
-    credential: hasServiceAccount ? cert(serviceAccount) : applicationDefault(),
-    projectId: serviceAccount?.project_id ?? envProjectId,
-  });
+	return initializeApp({
+		credential: cert({
+			privateKey,
+			clientEmail,
+			projectId
+		}),
+		projectId
+	});
 }
 
+const app = getAdminApp();
+const auth = getAuth(app);
+
 export async function verifyIdToken(idToken: string) {
-  const app = getAdminApp();
-  const auth = getAuth(app);
-  return auth.verifyIdToken(idToken);
+	return auth.verifyIdToken(idToken);
+}
+
+export async function createSessionCookie(
+	idToken: string,
+	options: { expiresIn: number }
+) {
+	return auth.createSessionCookie(idToken, options);
+}
+
+export async function verifySessionCookie(sessionCookie: string) {
+	return auth.verifySessionCookie(sessionCookie);
+}
+
+export async function revokeRefreshTokens(uid: string) {
+	return auth.revokeRefreshTokens(uid);
 }
