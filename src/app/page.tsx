@@ -106,7 +106,7 @@ export default function Home() {
 					<div className='mt-6 flex flex-col gap-3 sm:flex-row sm:items-center'>
 						<Link
 							href='/login'
-							className='inline-flex h-11 items-center justify-center rounded bg-gradient-to-r from-primary to-[#7c3aed] px-5 text-white transition hover:opacity-95'
+							className='inline-flex h-11 items-center justify-center rounded from-primary to-[#7c3aed] px-5 text-white transition hover:opacity-95'
 						>
 							Empezar ahora
 						</Link>
