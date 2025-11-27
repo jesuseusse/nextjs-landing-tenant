@@ -6,8 +6,8 @@ export type TenantDoc = {
 	theme: ThemeConfig;
 	links?: TenantLink[];
 	userId: string;
-	createdAt: number;
-	updatedAt: number;
+	createdAt?: number;
+	updatedAt?: number;
 };
 
 export type TenantLink = {

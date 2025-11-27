@@ -1,11 +1,11 @@
 import {
 	fetchTenantTheme,
 	fetchTenantThemeByUserUid,
-	saveTenantTheme,
-	type TenantThemeDoc
+	saveTenantTheme
 } from '@/lib/adapters/firestore/tenantTheme';
 import { getSessionUser } from '@/lib/usecases/auth/session';
 import { type ThemeConfig } from '@/lib/types/theme';
+import { TenantDoc } from '@/lib/types/tenant';
 
 type ThemeInput = {
 	tenantId: string;
@@ -25,7 +25,7 @@ function ensureSessionUser(
 
 async function assertTenantAvailable(tenantId: string, userUid: string) {
 	const existing = await fetchTenantTheme(tenantId);
-	if (existing && existing.userUid !== userUid) {
+	if (existing && existing.userId !== userUid) {
 		throw Object.assign(new Error('Nombre de usuario ya existe'), {
 			status: 409
 		});
@@ -36,7 +36,7 @@ export async function getTenantThemeServer(tenantId: string) {
 	const user = await getSessionUser();
 	ensureSessionUser(user);
 	const doc = await fetchTenantTheme(tenantId);
-	if (doc && doc.userUid !== user.uid) {
+	if (doc && doc.userId !== user.uid) {
 		throw Object.assign(new Error('No puedes ver este landing'), {
 			status: 403
 		});
@@ -78,19 +78,17 @@ export async function updateTenantThemeServer(
 	await assertTenantAvailable(input.tenantId, user.uid);
 
 	const now = Date.now();
-	const payload: Omit<TenantThemeDoc, 'tenantId'> = {
-		userUid: user.uid,
+	const payload: Omit<TenantDoc, 'tenantId'> = {
+		userId: user.uid,
 		displayName: input.displayName.trim(),
 		theme: {
 			background: input.theme.background,
 			foreground: input.theme.foreground,
 			primary: input.theme.primary,
 			muted: input.theme.muted,
-			radius: input.theme.radius,
 			font: input.theme.font
 		},
-		updatedAt: now,
-		updatedBy: user?.uid ?? 'unknown'
+		updatedAt: now
 	};
 
 	return saveTenantTheme(input.tenantId, payload);

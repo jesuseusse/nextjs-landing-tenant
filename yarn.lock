@@ -1085,6 +1085,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iconify/icons-simple-icons@npm:^1.2.74":
+  version: 1.2.74
+  resolution: "@iconify/icons-simple-icons@npm:1.2.74"
+  dependencies:
+    "@iconify/types": "*"
+  checksum: 1f796f8d3d525f5923a44f8ab08367b9ae4c6356c2fa1befe03f4aab9f3bc1efc37628064b5986616fcb354d8da4f4557daa3dfc7833e2a3a29340e598ff6541
+  languageName: node
+  linkType: hard
+
+"@iconify/react@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "@iconify/react@npm:6.0.2"
+  dependencies:
+    "@iconify/types": ^2.0.0
+  peerDependencies:
+    react: ">=16"
+  checksum: 8038cf3cc064a060dba3f794e4790a1d00c24350ff5fa1aabe94eb9ac1e5795cb2a81ac74928bd75e38878136f3244c5473d2aa579bf3144e92846cec8bb97a4
+  languageName: node
+  linkType: hard
+
+"@iconify/types@npm:*, @iconify/types@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@iconify/types@npm:2.0.0"
+  checksum: 029f58542c160e9d4a746869cf2e475b603424d3adf3994c5cc8d0406c47e6e04a3b898b2707840c1c5b9bd5563a1660a34b110d89fce43923baca5222f4e597
+  languageName: node
+  linkType: hard
+
 "@iconscout/react-unicons@npm:^2.2.5":
   version: 2.2.5
   resolution: "@iconscout/react-unicons@npm:2.2.5"
@@ -2734,6 +2761,8 @@ __metadata:
   resolution: "consultapp@workspace:."
   dependencies:
     "@hookform/resolvers": ^3.9.1
+    "@iconify/icons-simple-icons": ^1.2.74
+    "@iconify/react": ^6.0.2
     "@iconscout/react-unicons": ^2.2.5
     "@opentelemetry/api": ^1.9.0
     "@tailwindcss/postcss": ^4

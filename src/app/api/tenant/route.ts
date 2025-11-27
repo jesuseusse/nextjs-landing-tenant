@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
+	createTenant,
 	getTenantById,
 	getTenantForUser,
 	removeTenant,
-	upsertTenant
+	updateTenant
 } from '@/lib/usecases/tenant/tenant';
 
 function errorResponse(message: string, status = 400) {
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
 		if (!tenantId || !displayName || !theme) {
 			return errorResponse('tenantId, displayName y theme son requeridos');
 		}
-		const tenant = await upsertTenant({
+		const tenant = await createTenant({
 			tenantId,
 			displayName,
 			theme,
@@ -55,10 +56,12 @@ export async function PUT(request: Request) {
 		if (!tenantId) {
 			return errorResponse('tenantId es requerido');
 		}
-		const tenant = await upsertTenant({
+
+		const tenant = await updateTenant({
 			tenantId,
 			...rest
 		});
+
 		return NextResponse.json({ ok: true, tenant });
 	} catch (error) {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any

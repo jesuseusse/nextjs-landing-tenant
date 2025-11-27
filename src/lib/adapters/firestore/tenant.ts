@@ -20,7 +20,10 @@ export async function fetchTenantById(tenantId: string) {
 }
 
 export async function fetchTenantByUser(userId: string) {
-	const ref = getDb().collection(COLLECTION).where('userId', '==', userId).limit(1);
+	const ref = getDb()
+		.collection(COLLECTION)
+		.where('userId', '==', userId)
+		.limit(1);
 	const snap = await ref.get();
 	if (snap.empty) return null;
 	return snap.docs[0].data() as TenantDoc;
@@ -28,10 +31,10 @@ export async function fetchTenantByUser(userId: string) {
 
 export async function saveTenant(
 	tenantId: string,
-	payload: Omit<TenantDoc, 'tenantId'>
+	payload: Partial<TenantDoc>
 ) {
 	const ref = getDb().collection(COLLECTION).doc(tenantId);
-	await ref.set({ tenantId, ...payload }, { merge: true });
+	await ref.set({ tenantId, ...payload });
 	return { tenantId, ...payload } as TenantDoc;
 }
 

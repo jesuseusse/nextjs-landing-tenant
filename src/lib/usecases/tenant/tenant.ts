@@ -16,6 +16,14 @@ type TenantInput = {
 	links?: TenantLink[];
 };
 
+type UpdateTenantInput = {
+	tenantId: string;
+	displayName?: string;
+	theme?: ThemeConfig;
+	links?: TenantLink[];
+	prevTenantId?: string | null;
+};
+
 function ensureSessionUser(
 	user: Awaited<ReturnType<typeof getSessionUser>>
 ): asserts user is NonNullable<Awaited<ReturnType<typeof getSessionUser>>> & {
@@ -51,7 +59,7 @@ export async function getTenantById(tenantId: string) {
 	return tenant;
 }
 
-export async function upsertTenant(input: TenantInput) {
+export async function createTenant(input: TenantInput) {
 	const user = await getSessionUser();
 	ensureSessionUser(user);
 
@@ -62,10 +70,11 @@ export async function upsertTenant(input: TenantInput) {
 	await ensureTenantAvailable(input.tenantId, user.uid);
 
 	const now = Date.now();
-	const payload: Omit<TenantDoc, 'tenantId'> = {
+	const payload: TenantDoc = {
 		userId: user.uid,
-		displayName: input.displayName?.trim(),
-		theme: input?.theme,
+		tenantId: input.tenantId.trim(),
+		displayName: input.displayName.trim(),
+		theme: input.theme,
 		updatedAt: now,
 		createdAt: now,
 		links: input.links ?? []
@@ -73,12 +82,55 @@ export async function upsertTenant(input: TenantInput) {
 
 	const saved = await saveTenant(input.tenantId, payload);
 
+	return saved;
+}
+
+export async function updateTenant(input: UpdateTenantInput) {
+	const user = await getSessionUser();
+	ensureSessionUser(user);
+
+	const targetId = input.tenantId?.trim();
+	const sourceId = input.prevTenantId?.trim() || targetId;
+
+	if (!targetId || !sourceId) {
+		throw Object.assign(new Error('tenantId requerido'), { status: 400 });
+	}
+
+	const existing = await fetchTenantById(sourceId);
+	if (!existing) {
+		throw Object.assign(new Error('Tenant no encontrado'), { status: 404 });
+	}
+
+	if (existing.userId !== user.uid) {
+		throw Object.assign(new Error('No autorizado'), { status: 403 });
+	}
+
+	if (targetId !== sourceId) {
+		await ensureTenantAvailable(targetId, user.uid);
+	}
+
+	const now = Date.now();
+	const payload: Partial<TenantDoc> = {
+		tenantId: targetId,
+		userId: user.uid,
+		displayName: existing.displayName,
+		theme: existing.theme,
+		links: existing.links ?? [],
+		createdAt: existing.createdAt ?? now,
+		updatedAt: now
+	};
+
+	if (input.displayName?.trim()) payload.displayName = input.displayName.trim();
+	if (input.theme) payload.theme = input.theme;
+	if (input.links) payload.links = input.links;
+
+	const saved = await saveTenant(targetId, payload);
+
 	// If tenantId changed, remove old doc
-	const previousId = input.prevTenantId?.trim();
-	if (previousId && previousId !== input.tenantId) {
-		const existing = await fetchTenantById(previousId);
-		if (existing && existing.userId === user.uid) {
-			await deleteTenant(previousId);
+	if (sourceId && sourceId !== targetId) {
+		const existingSource = await fetchTenantById(sourceId);
+		if (existingSource && existingSource.userId === user.uid) {
+			await deleteTenant(sourceId);
 		}
 	}
 

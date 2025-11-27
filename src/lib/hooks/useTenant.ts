@@ -13,10 +13,12 @@ async function fetchTenant() {
 	return (await res.json()).tenant as TenantDoc | null;
 }
 
-async function saveTenant(
-	payload: Partial<TenantDoc> & { prevTenantId?: string | null }
-) {
-	const method = 'PUT';
+type SaveTenantInput = {
+	payload: Partial<TenantDoc> & { prevTenantId?: string | null };
+	method: 'POST' | 'PUT';
+};
+
+async function saveTenant({ payload, method }: SaveTenantInput) {
 	const res = await fetch('/api/tenant', {
 		method,
 		headers: { 'Content-Type': 'application/json' },

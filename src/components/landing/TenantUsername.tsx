@@ -37,19 +37,21 @@ export function TenantUsername({
 		const tenantId = formatTenant(values.tenantId);
 		form.setValue('tenantId', tenantId);
 		await saveTenant.mutateAsync({
-			prevTenantId: tenantQuery.data?.tenantId ?? null,
-			tenantId,
-			displayName: values.displayName,
-			theme: tenantQuery.data?.theme ?? {
-				background: '#ffffff',
-				foreground: '#171717',
-				primary: '#7700d3',
-				muted: '#00a891',
-				radius: 12,
-				font: 'geist'
-			},
-			links: tenantQuery.data?.links ?? []
-		} as Partial<TenantDoc>);
+			method: tenantQuery.data?.tenantId ? 'PUT' : 'POST',
+			payload: {
+				prevTenantId: tenantQuery.data?.tenantId ?? null,
+				tenantId,
+				displayName: values.displayName,
+				theme: tenantQuery.data?.theme ?? {
+					background: '#ffffff',
+					foreground: '#171717',
+					primary: '#7700d3',
+					muted: '#00a891',
+					font: 'geist'
+				},
+				links: tenantQuery.data?.links ?? []
+			}
+		});
 	};
 
 	return (

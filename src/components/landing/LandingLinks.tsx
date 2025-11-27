@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Icon } from '@iconify/react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useSaveTenant, useTenant } from '@/lib/hooks/useTenant';
 import { TenantDoc, TenantLink } from '@/lib/types/tenant';
@@ -12,24 +13,27 @@ type LinkType =
 	| 'tiktok'
 	| 'facebook'
 	| 'x'
+	| 'whatsapp'
 	| 'otro';
 
 function typeIcon(type: LinkType) {
 	switch (type) {
 		case 'instagram':
-			return '📷';
+			return 'mdi:instagram';
 		case 'waze':
-			return '🧭';
+			return 'mdi:waze';
 		case 'google-maps':
-			return '🗺️';
+			return 'mdi:google-maps';
 		case 'tiktok':
-			return '🎵';
+			return 'mdi:tiktok';
 		case 'facebook':
-			return '📘';
+			return 'mdi:facebook';
 		case 'x':
-			return '✖️';
+			return 'mdi:twitter';
+		case 'whatsapp':
+			return 'mdi:whatsapp';
 		default:
-			return '🔗';
+			return 'mdi:link-variant';
 	}
 }
 
@@ -37,6 +41,12 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 	const tenantQuery = useTenant({ initialData: initialTenant });
 	const saveTenant = useSaveTenant();
 	const [error, setError] = useState<string | null>(null);
+	const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+	const [deleteTimeout, setDeleteTimeout] = useState<NodeJS.Timeout | null>(
+		null
+	);
+	const [countdown, setCountdown] = useState<number | null>(null);
+	const deleteInterval = useRef<NodeJS.Timeout | null>(null);
 
 	const links = useMemo<TenantLink[]>(() => {
 		return tenantQuery.data?.links ?? [];
@@ -60,6 +70,7 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 		tiktok: 'https://www.tiktok.com/@',
 		facebook: 'https://facebook.com/',
 		x: 'https://x.com/',
+		whatsapp: 'https://wa.me/',
 		otro: 'https://'
 	};
 
@@ -83,8 +94,11 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 		const nextLinks = [...links, newLink];
 		try {
 			await saveTenant.mutateAsync({
-				tenantId: tenantQuery.data.tenantId,
-				links: [...nextLinks]
+				method: 'PUT',
+				payload: {
+					tenantId: tenantQuery.data.tenantId,
+					links: [...nextLinks]
+				}
 			});
 			reset({ label: '', href: '', type: values.type });
 		} catch (err) {
@@ -93,6 +107,72 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 			);
 		}
 	};
+
+	const cancelPendingDelete = () => {
+		if (deleteTimeout) {
+			clearTimeout(deleteTimeout);
+			setDeleteTimeout(null);
+		}
+		if (deleteInterval.current) {
+			clearInterval(deleteInterval.current);
+			deleteInterval.current = null;
+		}
+		setCountdown(null);
+		setPendingDelete(null);
+	};
+
+	const confirmDelete = (id: string) => {
+		if (!tenantQuery.data?.tenantId) return;
+		const nextLinks = links.filter(link => link.id !== id);
+		saveTenant
+			.mutateAsync({
+				method: 'PUT',
+				payload: {
+					tenantId: tenantQuery.data.tenantId,
+					links: [...nextLinks]
+				}
+			})
+			.catch(err => {
+				setError(
+					err instanceof Error ? err.message : 'No se pudo eliminar el link'
+				);
+			});
+		setPendingDelete(null);
+		setCountdown(null);
+		if (deleteInterval.current) {
+			clearInterval(deleteInterval.current);
+			deleteInterval.current = null;
+		}
+		setDeleteTimeout(null);
+	};
+
+	const startDeleteCountdown = (id: string) => {
+		cancelPendingDelete();
+		setPendingDelete(id);
+		setCountdown(5);
+		const intervalId = setInterval(() => {
+			setCountdown(prev => {
+				if (prev === null) return null;
+				if (prev <= 1) {
+					clearInterval(intervalId);
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+		deleteInterval.current = intervalId;
+		const timeoutId = setTimeout(() => {
+			confirmDelete(id);
+		}, 5000);
+		setDeleteTimeout(timeoutId);
+	};
+
+	useEffect(() => {
+		return () => {
+			cancelPendingDelete();
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	if (!tenantQuery.data?.tenantId) {
 		return null;
@@ -105,6 +185,61 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 					Links de la landing
 				</h3>
 			</div>
+			<ul className='mt-4 space-y-2'>
+				{links.map(link => (
+					<li
+						key={link.id}
+						className='w-full h-12 flex items-center justify-between rounded-lg border border-border bg-muted/30 p-4 text-sm text-foreground'
+					>
+						<div className='flex items-center gap-2'>
+							<Icon
+								icon={typeIcon(link.type as LinkType)}
+								width={24}
+								height={24}
+							/>
+							{pendingDelete !== link.id && (
+								<div className='flex flex-col'>
+									<span className='font-semibold'>{link.label}</span>
+									<a
+										href={link.href}
+										className='text-lg text-primary underline'
+										target='_blank'
+										rel='noreferrer'
+									>
+										{link.href.replace(/^(https?:\/\/)?(www\.)?/, '')}
+									</a>
+								</div>
+							)}
+						</div>
+						{pendingDelete === link.id ? (
+							<div className='flex items-center gap-2 text-right justify-end'>
+								<span className='text-xs text-muted-foreground'>
+									Se elimina en {countdown ?? 5}s
+								</span>
+								<button
+									type='button'
+									onClick={cancelPendingDelete}
+									className='text-xs font-semibold text-red-600 hover:underline'
+								>
+									Cancelar
+								</button>
+							</div>
+						) : (
+							<button
+								type='button'
+								onClick={() => startDeleteCountdown(link.id)}
+								className='text-xs font-semibold text-red-600 hover:underline'
+								aria-label='Eliminar link'
+							>
+								Eliminar
+							</button>
+						)}
+					</li>
+				))}
+				{!links.length ? (
+					<p className='text-sm text-muted-foreground'>Aun no agregas links.</p>
+				) : null}
+			</ul>
 			<form
 				className='mt-4 grid gap-3 sm:grid-cols-4'
 				onSubmit={handleSubmit(onSubmit)}
@@ -122,6 +257,7 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 						<option value='tiktok'>TikTok</option>
 						<option value='facebook'>Facebook</option>
 						<option value='x'>X</option>
+						<option value='whatsapp'>WhatsApp</option>
 						<option value='otro'>Otro</option>
 					</select>
 				</label>
@@ -158,32 +294,6 @@ export function LandingLinks({ initialTenant }: { initialTenant?: TenantDoc }) {
 				</div>
 			</form>
 			{error ? <p className='mt-2 text-sm text-red-700'>{error}</p> : null}
-			<ul className='mt-4 space-y-2'>
-				{links.map(link => (
-					<li
-						key={link.id}
-						className='flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm text-foreground'
-					>
-						<div className='flex items-center gap-2'>
-							<span>{typeIcon(link.type as LinkType)}</span>
-							<div className='flex flex-col'>
-								<span className='font-medium'>{link.label}</span>
-								<a
-									href={link.href}
-									className='text-xs text-primary underline'
-									target='_blank'
-									rel='noreferrer'
-								>
-									{link.href}
-								</a>
-							</div>
-						</div>
-					</li>
-				))}
-				{!links.length ? (
-					<p className='text-sm text-muted-foreground'>Aun no agregas links.</p>
-				) : null}
-			</ul>
 		</div>
 	);
 }
