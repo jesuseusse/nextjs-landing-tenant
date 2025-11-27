@@ -41,7 +41,6 @@ export default async function TenantLayout({
 		'--foreground': tenant.theme.foreground,
 		'--primary': tenant.theme.primary,
 		'--muted': tenant.theme.muted,
-		'--radius': `${tenant.theme.radius}px`,
 		'--font-tenant': tenant.theme.font
 	} as CSSProperties;
 
