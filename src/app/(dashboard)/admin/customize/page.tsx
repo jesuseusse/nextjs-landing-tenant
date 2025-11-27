@@ -36,7 +36,7 @@ export default function ThemePage() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			tenantId: '',
+			tenantId: tenantQuery?.data?.tenantId ?? '',
 			displayName: '',
 			theme: {
 				background: '#ffffff',
@@ -89,40 +89,6 @@ export default function ThemePage() {
 			>
 				<input type='hidden' value={profile.uid} readOnly />
 				<div className='grid gap-4 sm:grid-cols-2'>
-					<label className='flex flex-col gap-2 text-sm text-foreground'>
-						Nombre visible
-						<input
-							type='text'
-							{...form.register('displayName')}
-							className='h-11 rounded-lg border border-border bg-white px-3 text-foreground outline-none ring-primary/10 focus:ring-2'
-							placeholder='Consultorio Salud Integral'
-						/>
-						{form.formState.errors.displayName ? (
-							<span className='text-xs text-red-600'>
-								{form.formState.errors.displayName.message}
-							</span>
-						) : null}
-					</label>
-				</div>
-
-				<div className='grid gap-4 sm:grid-cols-2'>
-					<label className='flex flex-col gap-2 text-sm text-foreground'>
-						Nombre de usuario
-						<input
-							type='text'
-							{...form.register('tenantId', {
-								onChange: e =>
-									form.setValue('tenantId', formatTenant(e.target.value))
-							})}
-							className='h-11 rounded-lg border border-border bg-white px-3 text-foreground outline-none ring-primary/10 focus:ring-2'
-							placeholder='mi-consultorio'
-						/>
-						{form.formState.errors.tenantId ? (
-							<span className='text-xs text-red-600'>
-								{form.formState.errors.tenantId.message}
-							</span>
-						) : null}
-					</label>
 					<label className='flex flex-col gap-2 text-sm text-foreground'>
 						Fuente
 						<select
