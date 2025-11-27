@@ -47,7 +47,7 @@ export default function Home() {
 					</div>
 					<div className='flex flex-col gap-3 sm:flex-row sm:items-center'>
 						<Link
-							href='#get-started'
+							href='/register'
 							className='inline-flex h-12 items-center justify-center rounded bg-primary px-6 text-white transition hover:opacity-90'
 						>
 							Crear mi landing

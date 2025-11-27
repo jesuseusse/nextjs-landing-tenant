@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import type { ReactNode, CSSProperties } from 'react';
-import { fetchTenantById } from '@/lib/adapters/firestore/tenant';
+import { getTenantPublicCached } from '@/lib/usecases/tenant/public';
 
 export async function generateMetadata({
 	params
@@ -9,7 +9,7 @@ export async function generateMetadata({
 	params: Promise<{ tenantId: string }>;
 }): Promise<Metadata> {
 	const { tenantId } = await params;
-	const tenant = await fetchTenantById(tenantId);
+	const tenant = await getTenantPublicCached(tenantId);
 
 	if (!tenant) {
 		return {
@@ -32,7 +32,7 @@ export default async function TenantLayout({
 }) {
 	const { tenantId } = await params;
 
-	const tenant = await fetchTenantById(tenantId);
+	const tenant = await getTenantPublicCached(tenantId);
 
 	if (!tenant) notFound();
 

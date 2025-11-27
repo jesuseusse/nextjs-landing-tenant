@@ -5,6 +5,7 @@ import { Icon } from '@iconify/react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useSaveTenant, useTenant } from '@/lib/hooks/useTenant';
 import { TenantDoc, TenantLink } from '@/lib/types/tenant';
+import tiktokIcon from '@iconify/icons-simple-icons/tiktok';
 
 type LinkType =
 	| 'instagram'
@@ -25,7 +26,7 @@ function typeIcon(type: LinkType) {
 		case 'google-maps':
 			return 'mdi:google-maps';
 		case 'tiktok':
-			return 'mdi:tiktok';
+			return tiktokIcon;
 		case 'facebook':
 			return 'mdi:facebook';
 		case 'x':

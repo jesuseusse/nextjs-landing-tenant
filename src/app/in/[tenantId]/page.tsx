@@ -1,18 +1,16 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import {
-	UilInstagram,
-	UilFacebook,
-	UilTwitter,
-	UilLink,
-	UilMapMarker,
-	UilMap
-} from '@iconscout/react-unicons';
 import { getTenantPublicCached } from '@/lib/usecases/tenant/public';
-import { Icon } from '@iconify/react';
-import tiktokIcon from '@iconify/icons-simple-icons/tiktok';
-
+import { Icon } from '@iconify/react/dist/iconify.js';
 import type { TenantLink } from '@/lib/types/tenant';
+import instagramIcon from '@iconify/icons-mdi/instagram';
+import facebookIcon from '@iconify/icons-mdi/facebook';
+import twitterIcon from '@iconify/icons-mdi/twitter';
+import wazeIcon from '@iconify/icons-mdi/waze';
+import googleMapsIcon from '@iconify/icons-mdi/google-maps';
+import whatsappIcon from '@iconify/icons-mdi/whatsapp';
+import linkIcon from '@iconify/icons-mdi/link-variant';
+import tiktokIcon from '@iconify/icons-simple-icons/tiktok';
 
 type PageProps = {
 	params: Promise<{ tenantId: string }>;
@@ -27,19 +25,21 @@ export default async function TenantLandingPage({ params }: PageProps) {
 	const renderIcon = (link: TenantLink) => {
 		switch (link.type) {
 			case 'instagram':
-				return <UilInstagram className='h-4 w-4' />;
+				return <Icon icon={instagramIcon} width={14} />;
 			case 'facebook':
-				return <UilFacebook className='h-4 w-4' />;
+				return <Icon icon={facebookIcon} width={14} />;
 			case 'x':
-				return <UilTwitter className='h-4 w-4' />;
+				return <Icon icon={twitterIcon} width={14} />;
 			case 'tiktok':
 				return <Icon icon={tiktokIcon} width={14} />;
 			case 'waze':
-				return <UilMap className='h-4 w-4' />;
+				return <Icon icon={wazeIcon} width={14} />;
 			case 'google-maps':
-				return <UilMapMarker className='h-4 w-4' />;
+				return <Icon icon={googleMapsIcon} width={14} />;
+			case 'whatsapp':
+				return <Icon icon={whatsappIcon} width={14} />;
 			default:
-				return <UilLink className='h-4 w-4' />;
+				return <Icon icon={linkIcon} width={14} />;
 		}
 	};
 

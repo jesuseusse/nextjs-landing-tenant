@@ -1085,6 +1085,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@iconify/icons-mdi@npm:^1.2.48":
+  version: 1.2.48
+  resolution: "@iconify/icons-mdi@npm:1.2.48"
+  dependencies:
+    "@iconify/types": "*"
+  checksum: 4c50910d6e5125014fe6c88cc4b06a3ac94202ce2edb1b0154d8a5536d89a95f255f44325428fa36df322536cd7d075b680e927880b0e82effd6895b0752cde4
+  languageName: node
+  linkType: hard
+
 "@iconify/icons-simple-icons@npm:^1.2.74":
   version: 1.2.74
   resolution: "@iconify/icons-simple-icons@npm:1.2.74"
@@ -2761,6 +2770,7 @@ __metadata:
   resolution: "consultapp@workspace:."
   dependencies:
     "@hookform/resolvers": ^3.9.1
+    "@iconify/icons-mdi": ^1.2.48
     "@iconify/icons-simple-icons": ^1.2.74
     "@iconify/react": ^6.0.2
     "@iconscout/react-unicons": ^2.2.5
@@ -2774,6 +2784,7 @@ __metadata:
     eslint-config-next: 16.0.4
     firebase: ^11.0.2
     firebase-admin: ^12.6.0
+    husky: ^9.1.7
     next: 16.0.4
     react: 19.2.0
     react-dom: 19.2.0
@@ -4016,6 +4027,15 @@ __metadata:
     agent-base: ^7.1.2
     debug: 4
   checksum: b882377a120aa0544846172e5db021fa8afbf83fea2a897d397bd2ddd8095ab268c24bc462f40a15f2a8c600bf4aa05ce52927f70038d4014e68aefecfa94e8d
+  languageName: node
+  linkType: hard
+
+"husky@npm:^9.1.7":
+  version: 9.1.7
+  resolution: "husky@npm:9.1.7"
+  bin:
+    husky: bin.js
+  checksum: c2412753f15695db369634ba70f50f5c0b7e5cb13b673d0826c411ec1bd9ddef08c1dad89ea154f57da2521d2605bd64308af748749b27d08c5f563bcd89975f
   languageName: node
   linkType: hard
 

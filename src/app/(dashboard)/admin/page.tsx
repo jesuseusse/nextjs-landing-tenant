@@ -31,6 +31,13 @@ export default function AdminHome() {
 			});
 	}, [landingUrl]);
 
+	if (tenant.isPending)
+		return (
+			<div className='flex w-full min-h-[400px] justify-center items-center'>
+				<span className='w-24 h-24 rounded-4xl border-4 animate-spin border-primary'></span>
+			</div>
+		);
+
 	return (
 		<div className='flex flex-col gap-6'>
 			{landingUrl ? (
@@ -39,7 +46,7 @@ export default function AdminHome() {
 						href={landingUrl}
 						target='_blank'
 						rel='noreferrer'
-						className='inline-flex h-10 items-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:opacity-90'
+						className='inline-flex h-10 items-center rounded-full text-foreground px-4 text-sm font-semibold transition hover:opacity-90'
 					>
 						Ver tu landing page |{' '}
 						<span className='underline ml-2'>{landingUrl} </span>
@@ -50,16 +57,19 @@ export default function AdminHome() {
 						onClick={handleCopy}
 						className='inline-flex h-10 items-center rounded-full border border-border px-4 text-sm font-semibold text-foreground transition hover:bg-muted/50'
 					>
-						{copied ? 'Copiado' : 'Copiar link'}
+						{copied ? 'Copiado' : 'Copiar'}
 					</button>
 				</div>
 			) : null}
 			<section className='grid gap-4'>
-				<h1 className='text-lg font-semibold text-foreground'>
-					{profile.email}
-				</h1>
+				<span className='p-2 bg-primary rounded-full text-center'>
+					<h1 className='text-lg text-white font-bold'>
+						{profile.displayName || profile.email}
+					</h1>
+				</span>
 
 				<TenantUsername initialTenant={tenant.data ?? undefined} />
+
 				{tenant.data && (
 					<>
 						<LandingLinks initialTenant={tenant.data} />
